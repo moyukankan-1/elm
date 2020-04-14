@@ -1,16 +1,16 @@
 <template>
   <div id="app">
     <router-view />
+    <svg-icon></svg-icon>
   </div>
 </template>
 
 <script>
-
-export default {
-  name: 'App',
-  components: {
-
-  }
+  import svgIcon from './components/common/svg';
+  export default {
+    components: {
+      svgIcon
+    }
 }
 </script>
 

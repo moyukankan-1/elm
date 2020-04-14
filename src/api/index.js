@@ -22,4 +22,24 @@ export const searchplace = (cityid,value) => ajax('https://elm.cangdu.org/v1/poi
 export const msiteFoodTypes = () => ajax('https://elm.cangdu.org/v2/index_entry',{})
 //获取msite页面的地址信息
 export const msiteAddress = geohash => ajax('https://elm.cangdu.org/v2/pois/' + geohash)
+//获取msite商铺列表
+export const shopList = (latitude, longitude, offset, restaurant_category_id = '', restaurant_category_ids = '', order_by = '', delivery_mode = '', support_ids = []) => {
+  let supportStr = ''
+  support_ids.forEach(item => {
+    if(item.status) {
+      supportStr += '&support_ids[]=' + item.id
+    }
+  })
+  let data = {
+    latitude,
+    longitude,
+    offset,
+    limit: '20',
+    restaurant_category_id,
+    'restaurant_category_ids[]': restaurant_category_ids,
+    order_by,
+    'delivery_mode[]': delivery_mode + supportStr
+  }
+  return ajax('https://elm.cangdu.org/shopping/restaurants', data)
+}
 
