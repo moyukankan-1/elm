@@ -42,4 +42,7 @@ export const shopList = (latitude, longitude, offset, restaurant_category_id = '
   }
   return ajax('https://elm.cangdu.org/shopping/restaurants', data)
 }
+//获取search页面的搜索结果
+export const searchRestaurant = (geohash,keyword) => ajax('https://elm.cangdu.org/v4/restaurants',{geohash, keyword,})
+
 

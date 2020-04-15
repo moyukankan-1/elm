@@ -2,7 +2,8 @@ import {
     RECORD_ADDRESS,
     RECORD_USERINFO,
     GET_USERINFO,
-    SAVE_GEOHASH
+    SAVE_GEOHASH,
+    SAVE_AVANDER
 } from "./mutations-types";
 
 import {setStore} from "../config/utils";
@@ -37,6 +38,10 @@ export default {
     //保存geohash
     [SAVE_GEOHASH](state,geohash) {
         state.geohash = geohash
+    },
+    //保存图片
+    [SAVE_AVANDER](state,imgPath) {
+        state.imgPath = imgPath
     }
 }
 
