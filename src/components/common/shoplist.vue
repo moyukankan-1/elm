@@ -76,7 +76,7 @@
           'latitude','longitude'
       ])
     },
-    props: ['restaurantCategoryId','geohash'],
+    props: ['restaurantCategoryId', 'restaurantCategoryIds', 'sortByType', 'deliveryMode', 'supportIds', 'confirmSelect', 'geohash'],
     methods: {
       loaderMore() {
 
@@ -101,6 +101,26 @@
           zhunStatus = false
         }
         return zhunStatus
+      },
+      //监听父级传来的数据发生变化时，触发此函数重新根据属性值获取数据
+      async listenPropChange(){
+        this.offset = 0;
+        let res = await shopList(this.latitude, this.longitude, this.offset, '', this.restaurantCategoryIds, this.sortByType, this.deliveryMode, this.supportIds);
+        this.shopListArr = [...res];
+      },
+    },
+    watch: {
+      //监听父级传来的restaurantCategoryIds，当值发生变化的时候重新获取餐馆数据，作用于排序和筛选
+      restaurantCategoryIds: function (){
+        this.listenPropChange();
+      },
+      //监听父级传来的排序方式
+      sortByType: function (){
+        this.listenPropChange();
+      },
+      //监听父级的确认按钮是否被点击，并且返回一个自定义事件通知父级，已经接收到数据，此时父级才可以清除已选状态
+      confirmSelect: function (){
+        this.listenPropChange();
       }
     }
   }

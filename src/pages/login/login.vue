@@ -100,7 +100,6 @@
         }
         //用户名登录
         this.userInfo = await accountLogin(this.userAccount, this.passWord, this.codeNumber);
-        console.log(this.userInfo)
         // 如果返回的值不正确，则弹出提示框，返回的值正确则返回上一页
         if (!this.userInfo.user_id) {
           this.showAlert = true;

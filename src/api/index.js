@@ -44,5 +44,9 @@ export const shopList = (latitude, longitude, offset, restaurant_category_id = '
 }
 //获取search页面的搜索结果
 export const searchRestaurant = (geohash,keyword) => ajax('https://elm.cangdu.org/v4/restaurants',{geohash, keyword,})
-
-
+//获取food页面的 category 种类列表
+export const foodCategory = (latitude,longitude) => ajax('https://elm.cangdu.org/shopping/v2/restaurant/category',{latitude,longitude})
+//获取food页面的配送方式
+export const foodDelivery = (latitude, longitude) => ajax('https://elm.cangdu.org/shopping/v1/restaurants/delivery_modes',{latitude, longitude})
+//获取food页面的商家属性活动列表
+export const foodActivity = (latitude, longitude) => ajax('https://elm.cangdu.org/shopping/v1/restaurants/activity_attributes',{latitude, longitude})

@@ -159,7 +159,6 @@
     },
     computed: {
       ...mapState(['userInfo']),
-
     },
     methods: {
       ...mapMutations(['SAVE_AVANDER']),
