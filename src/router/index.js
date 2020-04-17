@@ -1,15 +1,17 @@
 import Vue from "vue"
 import VueRouter from "vue-router"
 
-const home = () => import("../pages/home/home")
-const login = () => import("../pages/login/login")
-const forget = () => import("../pages/forget/forget")
-const city = () => import("../pages/city/city")
-const msite = () => import("../pages/msite/msite")
-const search = () => import("../pages/search/search")
-const order = () => import("../pages/order/order")
-const profile = () => import("../pages/profile/profile")
-const food = () => import("../pages/food/food")
+
+const home = r => require.ensure([], () => r(require('../pages/home/home')), 'home')
+const city = r => require.ensure([], () => r(require('../pages/city/city')), 'city')
+const msite = r => require.ensure([], () => r(require('../pages/msite/msite')), 'msite')
+const search = r => require.ensure([], () => r(require('../pages/search/search')), 'search')
+const shop = r => require.ensure([], () => r(require('../pages/shop/shop')), 'shop')
+const login = r => require.ensure([], () => r(require('../pages/login/login')), 'login')
+const profile = r => require.ensure([], () => r(require('../pages/profile/profile')), 'profile')
+const forget = r => require.ensure([], () => r(require('../pages/forget/forget')), 'forget')
+const order = r => require.ensure([], () => r(require('../pages/order/order')), 'order')
+const food = r => require.ensure([], () => r(require('../pages/food/food')), 'food')
 
 Vue.use(VueRouter)
 
@@ -55,7 +57,12 @@ export default new VueRouter({
     {
       path: "/food",
       component: food
+    },
+    {
+      path: "/shop",
+      component: shop
     }
+
   ],
   mode: "history"
 })

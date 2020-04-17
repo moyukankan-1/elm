@@ -6,20 +6,90 @@
           <polyline points="12,18 4,9 12,0" style="fill:none;stroke:rgb(255,255,255);stroke-width:3"/>
         </svg>
       </nav>
+      <header class="shop_detail_header" ref="shopheader" :style="{zIndex: showActivities? '14':'10'}">
+        <div class="header_cover_img_con">
+          <img :src="imgBaseUrl + shopDetailData.image_path" class="header_cover_img">
+        </div>
+        <section class="description_header">
+          <router-link to="/shop/shopDetail" class="description_top">
+            <section class="description_left">
+              <img :src="imgBaseUrl + shopDetailData.image_path">
+            </section>
+            <section class="description_right">
+              <h4 class="description_title ellipsis">{{shopDetailData.name}}</h4>
+              <p class="description_text">商家配送／{{shopDetailData.order_lead_time}}分钟送达／配送费¥{{shopDetailData.float_delivery_fee}}</p>
+              <p class="description_promotion ellipsis">公告：{{promotionInfo}}</p>
+            </section>
+            <svg width="14" height="14" xmlns="http://www.w3.org/2000/svg" version="1.1" class="description_arrow" >
+              <path d="M0 0 L8 7 L0 14"  stroke="#fff" stroke-width="1" fill="none"/>
+            </svg>
+          </router-link>
+          <footer class="description_footer" v-if="shopDetailData.activities.length" @click="showActivitiesFun">
+            <p class="ellipsis">
+              <span class="tip_icon" :style="{backgroundColor: '#' + shopDetailData.activities[0].icon_color, borderColor: '#' + shopDetailData.activities[0].icon_color}">{{shopDetailData.activities[0].icon_name}}</span>
+              <span>{{shopDetailData.activities[0].description}}（APP专享）</span>
+            </p>
+            <p>{{shopDetailData.activities.length}}个活动</p>
+            <svg class="footer_arrow">
+              <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#arrow-left"></use>
+            </svg>
+          </footer>
+        </section>
+      </header>
+      <section class="change_show_type" ref="chooseType">
+        <div>
+          <span :class='{activity_show: changeShowType =="food"}' @click="changeShowType='food'">商品</span>
+        </div>
+        <div>
+          <span :class='{activity_show: changeShowType =="rating"}' @click="changeShowType='rating'">评价</span>
+        </div>
+      </section>
     </section>
   </div>
 </template>
 
 <script>
+  import {mapState,mapMutations} from 'vuex'
+  import {msiteAddress,shopDetails} from "../../api";
+
   export default {
     data() {
       return {
         geohash: '', //geohash位置信息
-        showLoading: true, //显示加载动画
+        shopId: null, //商店id值
+        showLoading: false, //显示加载动画
+        shopDetailData: null, //商铺详情
+        showActivities: false, //是否显示活动详情
+        changeShowType: 'food',//切换显示商品或者评价
+        imgBaseUrl: 'https://elm.cangdu.org/img/', //图片域名地址
       }
     },
+    computed: {
+      ...mapState(['latitude','longitude']),
+      promotionInfo: function (){
+        return this.shopDetailData.promotion_info || '欢迎光临，用餐高峰期请提前下单，谢谢。'
+      }
+    },
+    mounted() {
+      this.geohash = this.$route.query.geohash
+      this.shopId = this.$route.query.id
+      this.initData()
+    },
     methods: {
-      goback() {}
+      ...mapMutations(['RECORD_ADDRESS']),
+      async initData() {
+        if(!this.latitude) {
+          //获取位置信息
+          let res = await msiteAddress(this.geohash);
+          // 记录当前经度纬度进入vuex
+          this.RECORD_ADDRESS(res)
+        }
+        //获取商铺信息
+        this.shopDetailData = await shopDetails(this.shopId,this.latitude,this.longitude)
+        console.log(this.shopDetailData)
+      },
+      goback() {},
+      showActivitiesFun() {}
     }
   }
 </script>
