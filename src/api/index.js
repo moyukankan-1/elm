@@ -52,3 +52,13 @@ export const foodDelivery = (latitude, longitude) => ajax('https://elm.cangdu.or
 export const foodActivity = (latitude, longitude) => ajax('https://elm.cangdu.org/shopping/v1/restaurants/activity_attributes',{latitude, longitude})
 //获取shop页面商铺详情
 export const shopDetails = (shopid, latitude, longitude) => ajax('https://elm.cangdu.org/shopping/restaurant/' + shopid,{latitude, longitude})
+//获取shop页面菜单列表
+export const foodMenu = restaurant_id => ajax('https://elm.cangdu.org/shopping/v2/menu',{restaurant_id})
+//获取商铺评论列表
+export const getRatingList = (shopid, offset, tag_name = '') => ajax('https://elm.cangdu.org/ugc/v2/restaurants/' + shopid + '/ratings',{has_content: true, offset, limit: 10, tag_name})
+//获取商铺评价分数
+export const ratingScores = shopid => ajax('https://elm.cangdu.org/ugc/v2/restaurants/' + shopid + '/ratings/scores',{})
+//获取商铺评价分类
+export const ratingTags = shopid => ajax('https://elm.cangdu.org/ugc/v2/restaurants/' + shopid + '/ratings/tags')
+
+
