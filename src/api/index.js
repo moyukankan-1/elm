@@ -57,7 +57,7 @@ export const foodMenu = restaurant_id => ajax('https://elm.cangdu.org/shopping/v
 //获取商铺评论列表
 export const getRatingList = (shopid, offset, tag_name = '') => ajax('https://elm.cangdu.org/ugc/v2/restaurants/' + shopid + '/ratings',{has_content: true, offset, limit: 10, tag_name})
 //获取商铺评价分数
-export const ratingScores = shopid => ajax('https://elm.cangdu.org/ugc/v2/restaurants/' + shopid + '/ratings/scores',{})
+export const ratingScores = shopid => ajax('https://elm.cangdu.org/ugc/v2/restaurants/' + shopid + '/ratings/scores')
 //获取商铺评价分类
 export const ratingTags = shopid => ajax('https://elm.cangdu.org/ugc/v2/restaurants/' + shopid + '/ratings/tags')
 
