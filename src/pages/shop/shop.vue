@@ -8,12 +8,12 @@
       </nav>
       <header class="shop_detail_header" ref="shopheader">
         <div class="header_cover_img_con">
-          <img :src="imgBaseUrl + shopDetailData.image_path" class="header_cover_img">
+          <img :src="imgBaseUrl + shopDetailData.image_path" v-if="shopDetailData.image_path" class="header_cover_img">
         </div>
         <section class="description_header">
           <router-link to="/shop/shopDetail" class="description_top">
             <section class="description_left">
-              <img :src="imgBaseUrl + shopDetailData.image_path">
+              <img :src="imgBaseUrl + shopDetailData.image_path" v-if="shopDetailData.image_path">
             </section>
             <section class="description_right">
               <h4 class="description_title ellipsis">{{shopDetailData.name}}</h4>
@@ -24,16 +24,6 @@
               <path d="M0 0 L8 7 L0 14"  stroke="#fff" stroke-width="1" fill="none"/>
             </svg>
           </router-link>
-          <footer class="description_footer" v-if="shopDetailData.activities.length" @click="showActivitiesFun">
-            <p class="ellipsis">
-              <span class="tip_icon" :style="{backgroundColor: '#' + shopDetailData.activities[0].icon_color, borderColor: '#' + shopDetailData.activities[0].icon_color}">{{shopDetailData.activities[0].icon_name}}</span>
-              <span>{{shopDetailData.activities[0].description}}（APP专享）</span>
-            </p>
-            <p>{{shopDetailData.activities.length}}个活动</p>
-            <svg class="footer_arrow">
-              <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#arrow-left"></use>
-            </svg>
-          </footer>
         </section>
       </header>
       <section class="change_show_type" ref="chooseType">
@@ -44,11 +34,71 @@
           <span :class='{activity_show: changeShowType =="rating"}' @click="changeShowType='rating'">评价</span>
         </div>
       </section>
+      <transition name="fade-choose">
+        <section v-show="changeShowType =='food'" class="food_container">
+          <section class="menu_container">
+            <section class="menu_left" id="wrapper_menu" ref="wrapperMenu">
+              <ul>
+                <li v-for="(item,index) in menuList" :key="index" class="menu_left_li" :class="{activity_menu: index == menuIndex}">
+                  <img :src="imgBaseUrl + item.icon_url" v-if="item.icon_url">
+                  <span>{{item.name}}</span>
+                  <span class="category_num" v-if="categoryNum[index]&&item.type==1">{{categoryNum[index]}}</span>
+                </li>
+              </ul>
+            </section>
+            <section class="menu_right" ref="menuFoodList">
+              <ul>
+                <li v-for="(item,index) in menuList" :key="index">
+                  <header class="menu_detail_header">
+                    <section class="menu_detail_header_left">
+                      <strong class="menu_item_title">{{item.name}}</strong>
+                      <span class="menu_item_description">{{item.description}}</span>
+                    </section>
+                    <span class="menu_detail_header_right"></span>
+                    <p class="description_tip" v-if="index == TitleDetailIndex">
+                      <span>{{item.name}}</span>
+                      {{item.description}}
+                    </p>
+                  </header>
+                  <section v-for="(foods,foodindex) in item.foods" :key="foodindex" class="menu_detail_list">
+                    <router-link  :to="{path: 'shop/foodDetail', query:{image_path:foods.image_path, description: foods.description, month_sales: foods.month_sales, name: foods.name, rating: foods.rating, rating_count: foods.rating_count, satisfy_rate: foods.satisfy_rate, foods, shopId}}" tag="div" class="menu_detail_link">
+                      <section class="menu_food_img">
+                        <img :src="imgBaseUrl + foods.image_path">
+                      </section>
+                      <section class="menu_food_description">
+                        <h3 class="food_description_head">
+                          <strong class="description_foodname">{{foods.name}}</strong>
+                        </h3>
+                        <p class="food_description_content">{{foods.description}}</p>
+                        <p class="food_description_sale_rating">
+                          <span>月售{{foods.month_sales}}份</span>
+                          <span>好评率{{foods.satisfy_rate}}%</span>
+                        </p>
+                        <p v-if="foods.activity" class="food_activity">
+                          <span :style="{color: '#' + foods.activity.image_text_color,borderColor:'#' +foods.activity.icon_color}">{{foods.activity.image_text}}</span>
+                        </p>
+                      </section>
+                    </router-link>
+                    <footer class="menu_detail_footer">
+                      <section class="food_price">
+                        <span>¥</span>
+                        <span>{{foods.specfoods[0].price}}</span>
+                        <span v-if="foods.specifications.length">起</span>
+                      </section>
+                    </footer>
+                  </section>
+                </li>
+              </ul>
+            </section>
+          </section>
+        </section>
+      </transition>
     </section>
   </div>
 </template>
 
 <script>
+  import BScroll from "better-scroll"
   import {mapState,mapMutations} from 'vuex'
   import {msiteAddress,shopDetails,foodMenu,ratingTags,getRatingList,ratingScores} from "../../api";
   import {loadMore} from '../../components/common/mixin'
@@ -105,13 +155,22 @@
         this.shopDetailData = await shopDetails(this.shopId,this.latitude,this.longitude)
         //获取商铺食品列表
         this.menuList = await foodMenu(this.shopId)
-        //评论列表
-        this.ratingList = await getRatingList(this.shopId,this.ratingOffset)
-        //商铺评论详情
-        this.ratingScoresData = await ratingScores(this.shopId)
-        //评论分类列表
-        this.ratingTagsList = await ratingTags(this.shopId)
+
+        // //评论列表
+        // this.ratingList = await getRatingList(this.shopId,this.ratingOffset)
+        // //商铺评论详情
+        // this.ratingScoresData = await ratingScores(this.shopId)
+        // //评论分类列表
+        // this.ratingTagsList = await ratingTags(this.shopId)
       },
+    },
+    watch: {
+      menuList: function () {
+        this.$nextTick(() => {
+          new BScroll('.menu_left')
+          new BScroll('.menu_right')
+        })
+      }
     }
   }
 </script>
@@ -320,7 +379,6 @@
   .food_container{
     display: flex;
     flex: 1;
-    padding-bottom: 2rem;
     overflow: hidden;
   }
   .menu_container{
