@@ -3,7 +3,9 @@ import {
     RECORD_USERINFO,
     GET_USERINFO,
     SAVE_GEOHASH,
-    SAVE_AVANDER
+    SAVE_AVANDER,
+    ADD_CART,
+    REDUCE_CART
 } from "./mutations-types";
 
 import {setStore} from "../config/utils";
@@ -42,6 +44,14 @@ export default {
     //保存图片
     [SAVE_AVANDER](state,imgPath) {
         state.imgPath = imgPath
+    },
+    //加入购物车
+    [ADD_CART](state, {}) {
+
+    },
+    //移除购物车
+    [REDUCE_CART](state,{}) {
+
     }
 }
 

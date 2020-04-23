@@ -39,16 +39,16 @@
           <section class="menu_container">
             <section class="menu_left" id="wrapper_menu" ref="wrapperMenu">
               <ul>
-                <li v-for="(item,index) in menuList" :key="index" class="menu_left_li" :class="{activity_menu: index == menuIndex}">
+                <li v-for="(item,index) in menuList" :key="index" class="menu_left_li" :class="{activity_menu: index == menuIndex}" @click="clickMenuLeft(index)">
                   <img :src="imgBaseUrl + item.icon_url" v-if="item.icon_url">
                   <span>{{item.name}}</span>
                   <span class="category_num" v-if="categoryNum[index]&&item.type==1">{{categoryNum[index]}}</span>
                 </li>
               </ul>
             </section>
-            <section class="menu_right" ref="menuFoodList">
-              <ul>
-                <li v-for="(item,index) in menuList" :key="index">
+            <section class="menu_right">
+              <ul ref="menuFoodList">
+                <li v-for="(item,index) in menuList" :key="index" class="lis">
                   <header class="menu_detail_header">
                     <section class="menu_detail_header_left">
                       <strong class="menu_item_title">{{item.name}}</strong>
@@ -85,6 +85,7 @@
                         <span>{{foods.specfoods[0].price}}</span>
                         <span v-if="foods.specifications.length">起</span>
                       </section>
+                      <buy-cart :shop-id="shopId" :foods="foods"></buy-cart>
                     </footer>
                   </section>
                 </li>
@@ -102,6 +103,7 @@
   import {mapState,mapMutations} from 'vuex'
   import {msiteAddress,shopDetails,foodMenu,ratingTags,getRatingList,ratingScores} from "../../api";
   import {loadMore} from '../../components/common/mixin'
+  import buyCart from "../../components/common/buyCart";
 
   export default {
     data() {
@@ -117,7 +119,6 @@
         ratingOffset: 0, //评价获取数据offset值
         showActivities: false, //是否显示活动详情
         changeShowType: 'food',//切换显示商品或者评价
-        menuIndex: 0, //已选菜单索引值，默认为0
         ratingTageIndex: 0, //评价分类索引
         TitleDetailIndex: null, //点击展示列表头部详情
         ratingTagName: '',//评论的类型
@@ -127,6 +128,8 @@
         receiveInCart: false, //购物车组件下落的圆点是否到达目标位置
         cartFoodList: [], //购物车商品列表
         loadRatings: false, //加载更多评论是显示加载组件
+        scrollY: 0,       //右侧滑动的y轴坐标
+        tops: [],   //右侧每一栏所以坐标
         imgBaseUrl: 'https://elm.cangdu.org/img/', //图片域名地址
       }
     },
@@ -136,6 +139,19 @@
       promotionInfo(){
         return this.shopDetailData.promotion_info || '欢迎光临，用餐高峰期请提前下单，谢谢。'
       },
+      //计算得到当前分类下标
+      menuIndex() {
+        //得到条件数据
+        const {scrollY,tops} = this
+        //根据条件计算产生一个结果
+        const index = tops.findIndex((top,index) => {
+          return scrollY >= top && scrollY < tops[index+1]
+        })
+        return index
+      }
+    },
+    components: {
+      buyCart
     },
     mounted() {
       this.geohash = this.$route.query.geohash
@@ -155,6 +171,7 @@
         this.shopDetailData = await shopDetails(this.shopId,this.latitude,this.longitude)
         //获取商铺食品列表
         this.menuList = await foodMenu(this.shopId)
+        console.log(this.menuList)
 
         // //评论列表
         // this.ratingList = await getRatingList(this.shopId,this.ratingOffset)
@@ -163,12 +180,48 @@
         // //评论分类列表
         // this.ratingTagsList = await ratingTags(this.shopId)
       },
+      //初始化滚动
+      initScroll() {
+        new BScroll('.menu_left',{
+          click: true
+        })
+        this.foodsScroll = new BScroll('.menu_right',{
+          probeType: 2,  //因为惯性滑动不会触发
+          click: true
+        })
+        //给右侧列表绑定scroll监听
+        this.foodsScroll.on('scroll',({x,y}) => {
+          this.scrollY = Math.abs(y)
+        })
+        //滚动结束在获取一下scrollY
+        this.foodsScroll.on('scrollEnd',({x,y}) => {
+          this.scrollY = Math.abs(y)
+        })
+      },
+      //初始化tops
+      initTops() {
+        const tops  = []
+        let top = 0
+        tops.push(top)
+        const lis = this.$refs.menuFoodList.getElementsByClassName('lis')
+        Array.prototype.slice.call(lis).forEach(li => {
+          top += li.clientHeight
+          tops.push(top)
+        })
+        this.tops = tops
+      },
+      //点击左侧
+      clickMenuLeft(index) {
+        let scrollY = this.tops[index]
+        this.scrollY = scrollY
+        this.foodsScroll.scrollTo(0,-scrollY,500)
+      }
     },
     watch: {
       menuList: function () {
         this.$nextTick(() => {
-          new BScroll('.menu_left')
-          new BScroll('.menu_right')
+          this.initScroll()
+          this.initTops()
         })
       }
     }
